@@ -1,0 +1,86 @@
+// PIC16F877A Configuration Bit Settings
+
+// 'C' source line config statements
+
+// CONFIG
+#pragma config FOSC = EXTRC     // Oscillator Selection bits (RC oscillator)
+#pragma config WDTE = OFF        // Watchdog Timer Enable bit (WDT enabled)
+#pragma config PWRTE = OFF      // Power-up Timer Enable bit (PWRT disabled)
+#pragma config BOREN = OFF       // Brown-out Reset Enable bit (BOR enabled)
+#pragma config LVP = OFF         // Low-Voltage (Single-Supply) In-Circuit Serial Programming Enable bit (RB3/PGM pin has PGM function; low-voltage programming enabled)
+#pragma config CPD = OFF        // Data EEPROM Memory Code Protection bit (Data EEPROM code protection off)
+#pragma config WRT = OFF        // Flash Program Memory Write Enable bits (Write protection off; all program memory may be written to by EECON control)
+#pragma config CP = OFF         // Flash Program Memory Code Protection bit (Code protection off)
+
+// #pragma config statements should precede project file includes.
+// Use project enums instead of #define for ON and OFF.
+
+#include <xc.h>
+#define _XTAL_FREQ 6000000
+#include <stdint.h>
+void init(void);
+uint8_t C = 0; // Global Counter Variable
+
+
+void main(){
+      // -- [[  IO Configurations ]] --
+ // TRISB0 = 0;
+  //RB0 = 0;
+ 
+  // -- [[ Configure Timer1 To Operate In Timer Mode&nbsp; ]] --
+  // Clear The Timer1 Register. To start counting from 0
+  //TMR1 = 0;
+  // Choose the local clock source (timer mode)
+  //TMR1CS = 0;
+  // Choose the desired prescaler ratio (1:1)
+  //T1CKPS0 = 0;
+  //T1CKPS1 = 0;
+  // Event1 = LED ON
+  //RB0 = 1;
+  // Switch ON Timer1 Module!
+  //TMR1ON = 1;
+ 
+  // -- [[ Interrupts Configurations ]] --
+  //TMR1IE = 1; // Timer1 Interrupt Enable Bit
+  //TMR1IF = 0; // Clear The Interrupt Flag Bit
+  //PEIE = 1;   // Peripherals Interrupts Enable Bit
+  //GIE = 1;    // Global Interrupts Enable Bit
+    init();
+  while(1)
+  {
+      PORTC=0xFF;
+      __delay_ms(500);
+      PORTC=0x00;
+      __delay_ms(500);
+      
+   
+      
+  }
+    
+}
+void init(void)
+{
+    TRISC=0x00;
+    TRISD=0x00;
+    TRISB=0X00;
+    INTCON=0xC0;
+    PIE1=0x01;
+    T1CON=0x01;
+}
+void __interrupt() _ISR()
+{
+     RB0= ~RB0;
+    if (TMR1IF)
+   {
+      C++;
+      if(C==23)
+      {
+        // Event2 = Toggle LED
+        RD0= ~RD0;
+        // Clear The Global Counter
+        C = 0;
+      }
+      TMR1IF = 0;// Clear The Flag Bit
+       
+   }
+}
